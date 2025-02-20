@@ -30,4 +30,31 @@ const verifyUser = async (req, res) => {
         res.status(500).json({ message: "error occurred" })
     }
 }
-export { registerUser, verifyUser };
+
+const getUserdetails = async(req,res) => {
+    const { email } = req.body;
+
+    // Check if email is provided
+    if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+    }
+
+    try {
+        // Find user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Return user details (excluding password for security)
+        res.json({
+            name: user.name,
+            email: user.email,
+            teamName: user.Teamname
+        });
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+export { registerUser, verifyUser , getUserdetails };
