@@ -17,7 +17,11 @@ const userSchema=new mongoose.Schema(
         Teamname:{
             type:String,
             required:true,
-        },   
+        }, 
+        points: { 
+            type: Number, 
+            default: 100 
+        } ,  
         level1:{
           type:Boolean,
           default:false

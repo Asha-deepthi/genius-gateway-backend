@@ -1,7 +1,7 @@
 import express from "express";
 import connectdb from "./db.js"
 import cors from "cors";
-import { registerUser,verifyUser , getUserdetails } from "./controller.js";
+import { registerUser,verifyUser , getUserdetails , updateMarks , level1completion } from "./controller.js";
 const app = express();
 app.use(cors());
 
@@ -17,6 +17,7 @@ connectdb();
 app.post("/createUser",registerUser);
 app.post("/loginUser",verifyUser);
 app.post("/access",getUserdetails);
-
+app.post("/marks",updateMarks);
+app.post("/completion",level1completion);
 
 app.listen(5000, () => console.log("server running on port 5000"))
