@@ -14,4 +14,17 @@ const registerUser=async(req,res)=>{
         res.status(500).json({message:"error occurred"})
     }
 }
-export default  registerUser;
+
+const verifyUser = async(req,res)=>{
+        const { email, password } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ email, password });
+    if (!user) {
+        return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    // If user exists, send success response
+    res.status(200).json({ message: 'Sign-in successful', user: { name: user.name, email: user.email, teamName: user.teamName } });
+}
+export  {registerUser,verifyUser};
