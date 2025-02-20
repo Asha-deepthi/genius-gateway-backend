@@ -1,7 +1,16 @@
 import express from "express";
 import connectdb from "./db.js"
+import cors from "cors";
 import { registerUser,verifyUser } from "./controller.js";
 const app = express();
+app.use(cors());
+
+// Or restrict to your frontend's origin (recommended for production)
+app.use(cors({
+    origin: "http://localhost:5173", // Replace with your frontend URL
+    methods: ["GET", "POST"],
+    credentials: true // If you are using cookies or authentication
+}));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 connectdb();
