@@ -2,10 +2,10 @@ import User from "./User.js"
 const registerUser = async (req, res) => {
     try {
         const {
-            name, email, Teamname
+            name, email, teamname
         } = req.body;
-        const password = Teamname + "@geniusgateway"
-        const newUser = new User({ name, email, Teamname, password });
+        const password = teamname + "@geniusgateway"
+        const newUser = new User({ name, email, teamname, password });
         await newUser.save();
         res.status(200).json({ message: "login completed successfully" })
     }
@@ -50,7 +50,7 @@ const getUserdetails = async(req,res) => {
         res.json({
             name: user.name,
             email: user.email,
-            teamName: user.Teamname
+            teamName: user.teamname
         });
     } catch (error) {
         console.error('Error fetching user details:', error);
@@ -108,4 +108,30 @@ const level1completion = async (req, res) => {
       }
 }
 
-export { registerUser, verifyUser , getUserdetails , updateMarks , level1completion };
+const decrement = async (req,res) => {
+    const { email, hintsUsed } = req.body;
+
+    if (!email || !hintsUsed || hintsUsed < 1 || hintsUsed > 3) {
+        return res.status(400).json({ message: "Invalid request data" });
+    }
+
+    try {
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Calculate deduction based on hints used
+        const deduction = hintsUsed === 1 ? 5 : hintsUsed === 2 ? 10 : 15;
+        user.points =  user.points - deduction;
+
+        await user.save();
+
+        res.json({ message: "Points updated", points: user.points });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+}
+
+export { registerUser, verifyUser , getUserdetails , updateMarks , level1completion , decrement};
