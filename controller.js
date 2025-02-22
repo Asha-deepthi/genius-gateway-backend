@@ -75,7 +75,7 @@ const updateMarks = async (req, res) => {
 
         // If the answer is correct, add 10 marks
        
-            user.points += 10; // Ensure marks exist and increment by 10
+            user.points += 50; // Ensure marks exist and increment by 10
             await user.save(); // Save the updated document
         
 
