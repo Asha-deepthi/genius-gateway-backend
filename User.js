@@ -35,6 +35,10 @@ const userSchema=new mongoose.Schema(
             type:Boolean,
             default:false
         },
+        gridNumber:{
+            type: Number,
+            required:true
+        }
     
     }
 )
