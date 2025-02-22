@@ -50,7 +50,8 @@ const getUserdetails = async(req,res) => {
         res.json({
             name: user.name,
             email: user.email,
-            teamName: user.teamname
+            teamName: user.Teamname,
+            Points: user.points
         });
     } catch (error) {
         console.error('Error fetching user details:', error);

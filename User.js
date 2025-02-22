@@ -14,7 +14,7 @@ const userSchema=new mongoose.Schema(
             type:String,
             default:"1234",
         },
-        teamname:{
+        Teamname:{
             type:String,
             required:true,
         }, 
