@@ -1,18 +1,46 @@
 import User from "./User.js"
+// Function to register a new user/team
 const registerUser = async (req, res) => {
     try {
-        const {
-            name, email, teamname
-        } = req.body;
-        const password = teamname + "@geniusgateway"
-        const newUser = new User({ name, email, teamname, password });
-        await newUser.save();
-        res.status(200).json({ message: "login completed successfully" })
+        const { name, email, teamName } = req.body;
+        const password = teamName + "@geniusgateway";
+        
+        // Check if required fields are present
+        if (!name || !email || !teamName) {
+            return res.status(400).json({ message: "Name, Email, and Teamname are required" });
+        }
+        
+        // Check if email or teamname already exists
+        const existingUser = await User.findOne({ $or: [{ email }, { teamName }] });
+        if (existingUser) {
+            return res.status(409).json({ message: "Email or Teamname already taken" });
+        }
+
+        // Generate a random number between 1 and 5 for the crossword grid
+        const randomGrid = Math.floor(Math.random() * 5) + 1;
+
+        // Create a new user with the random crossword grid number
+        const newUser = new User({
+            name,
+            email,
+            Teamname:teamName,
+            password,
+            points: 100,               // Default points
+            gridNumber: randomGrid  // Random grid number
+        });
+
+        await newUser.save(); // Save the new user to the database
+        
+        res.status(201).json({ 
+            message: "Registration successful", 
+            grid: randomGrid 
+        });
+    } catch (error) {
+        console.error('Error registering user:', error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
-    catch (error) {
-        res.status(500).json({ message: "error occurred" })
-    }
-}
+};
+
 
 const verifyUser = async (req, res) => {
     try {
@@ -50,7 +78,12 @@ const getUserdetails = async(req,res) => {
         res.json({
             name: user.name,
             email: user.email,
-            teamName: user.teamname
+            teamName: user.Teamname,
+            Points: user.points,
+            Level1:user.level1,
+            Level2:user.level2,
+            Level3:user.level3
+
         });
     } catch (error) {
         console.error('Error fetching user details:', error);
@@ -134,4 +167,14 @@ const decrement = async (req,res) => {
     }
 }
 
-export { registerUser, verifyUser , getUserdetails , updateMarks , level1completion , decrement};
+const getTeams = async (req, res) => {
+    try {
+        const teams = await User.find({}, { Teamname: 1, points: 1, _id: 0 })
+            .sort({ points: -1, Teamname: 1 }); // Sort by points (descending)
+        res.json(teams); // Send the sorted teams as a response
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+export { registerUser, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams};

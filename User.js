@@ -14,7 +14,7 @@ const userSchema=new mongoose.Schema(
             type:String,
             default:"1234",
         },
-        teamname:{
+        Teamname:{
             type:String,
             required:true,
         }, 
@@ -35,6 +35,10 @@ const userSchema=new mongoose.Schema(
             type:Boolean,
             default:false
         },
+        gridNumber:{
+            type: Number,
+            required:true
+        }
     
     }
 )

@@ -3,7 +3,7 @@ import connectdb from "./db.js"
 import cors from "cors";
 import bodyParser from 'body-parser';
 import User from "./User.js"; // ✅ Import User Model
-import { registerUser,verifyUser , getUserdetails , updateMarks , level1completion , decrement } from "./controller.js";
+import { registerUser,verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams } from "./controller.js";
 
 const app = express();
 app.use(cors());
@@ -25,15 +25,7 @@ app.post("/access",getUserdetails);
 app.post("/marks",updateMarks);
 app.post("/completion",level1completion);
 app.post("/decrementMarks",decrement);
-app.get("/teams", async (req, res) => {
-    try {
-        const teams = await User.find({}, { Teamname: 1, points: 1, _id: 0 })
-            .sort({ points: -1 }) // Only sort by points descending
-        res.json(teams);
-    } catch (error) {
-        console.error("Error fetching teams:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
+app.get("/teams", getTeams);
+
 
 app.listen(5000, () => console.log("server running on port 5000"))
