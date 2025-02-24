@@ -82,8 +82,8 @@ const getUserdetails = async(req,res) => {
             Points: user.points,
             Level1:user.level1,
             Level2:user.level2,
-            Level3:user.level3
-
+            Level3:user.level3,
+            gridNum:user.gridNumber
         });
     } catch (error) {
         console.error('Error fetching user details:', error);
