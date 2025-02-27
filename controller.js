@@ -83,7 +83,8 @@ const getUserdetails = async(req,res) => {
             Level1:user.level1,
             Level2:user.level2,
             Level3:user.level3,
-            gridNum:user.gridNumber
+            gridNum:user.gridNumber,
+            groups:user.
         });
     } catch (error) {
         console.error('Error fetching user details:', error);
