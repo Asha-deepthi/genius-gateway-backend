@@ -38,6 +38,14 @@ const userSchema=new mongoose.Schema(
         gridNumber:{
             type: Number,
             required:true
+        },
+        uniqueNumber: {
+            type: String,
+            required:true
+        },
+        questionsArray: {
+            type: [[Number]],  // Array of arrays of numbers
+            required: true
         }
     
     }
