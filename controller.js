@@ -119,7 +119,7 @@ const verifyUser = async (req, res) => {
         // If user exists, send success response
         res.status(200).json({ message: 'Sign-in successful', user: { name: user.name, email: user.email, teamName: user.teamName } });
     } catch (error) {
-        res.status(500).json({ message: "error occurred" })
+        res.status(500).json({ message: "error occurred", error: error.message })
     }
 }
 
@@ -241,4 +241,21 @@ const getTeams = async (req, res) => {
     }
 };
 
-export { registerUser, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams};
+// Function to get participants who passed Level 1 and moved to Level 2
+const getLevel2Participants = async (req, res) => {
+    try {
+        // Find users who completed Level 1 and proceeded to Level 2
+        const participants = await User.find(
+            { level1: true }, // Checking both level statuses
+            { name: 1, email: 1, Teamname: 1, points: 1, _id: 0 } // Fields to return
+        ).sort({ points: -1 }); // Sort by points in descending order
+
+        res.status(200).json(participants);
+    } catch (error) {
+        console.error("Error fetching Level 2 participants:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+
+export { registerUser, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants };
