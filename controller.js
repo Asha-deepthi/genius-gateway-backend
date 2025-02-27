@@ -148,7 +148,7 @@ const getUserdetails = async(req,res) => {
             Level2:user.level2,
             Level3:user.level3,
             gridNum:user.gridNumber,
-            groups:user.
+            groups:user.questionsArray
         });
     } catch (error) {
         console.error('Error fetching user details:', error);
