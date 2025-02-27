@@ -1,4 +1,48 @@
 import User from "./User.js"
+// Utility function to shuffle an array
+const shuffleArray = (arr) => {
+    const array = [...arr];
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+};
+
+// Function to generate the question array from the unique number
+const generateQuestionArray = (uniqueNumber) => {
+    // Convert uniqueNumber to an array of digits
+    const keyDigits = uniqueNumber.split("").map(Number);
+
+    // Validate: Ensure all digits are unique and between 1 and 9
+    if (new Set(keyDigits).size !== 3) {
+        throw new Error("Unique Number digits must be unique.");
+    }
+    if (!keyDigits.every((d) => d >= 1 && d <= 9)) {
+        throw new Error("Each digit must be between 1 and 9.");
+    }
+
+    // All digits from 1 to 9
+    const allDigits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    // Get the non-key digits
+    const nonKeyDigits = allDigits.filter((d) => !keyDigits.includes(d));
+    // Shuffle non-key digits to get random order
+    const shuffledNonKey = shuffleArray(nonKeyDigits);
+
+    // Group each key digit with 2 random non-key digits
+    const group1 = [keyDigits[0], shuffledNonKey[0], shuffledNonKey[1]];
+    const group2 = [keyDigits[1], shuffledNonKey[2], shuffledNonKey[3]];
+    const group3 = [keyDigits[2], shuffledNonKey[4], shuffledNonKey[5]];
+
+    // Shuffle each group to randomize the order
+    const shuffledGroup1 = shuffleArray(group1);
+    const shuffledGroup2 = shuffleArray(group2);
+    const shuffledGroup3 = shuffleArray(group3);
+
+    // Return the combined array of all 3 groups
+    return [shuffledGroup1, shuffledGroup2, shuffledGroup3];
+};
+
 // Function to register a new user/team
 const registerUser = async (req, res) => {
     try {
@@ -19,21 +63,41 @@ const registerUser = async (req, res) => {
         // Generate a random number between 1 and 5 for the crossword grid
         const randomGrid = Math.floor(Math.random() * 5) + 1;
 
-        // Create a new user with the random crossword grid number
+        // Generate a 3-digit number with unique digits from 1 to 9
+        const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let unique3DigitNumber = '';
+
+        while (unique3DigitNumber.length < 3) {
+            const randomIndex = Math.floor(Math.random() * digits.length);
+            unique3DigitNumber += digits.splice(randomIndex, 1)[0];
+        }
+
+        console.log('Generated Unique Number:', unique3DigitNumber);
+
+        // Generate the question array from the unique number
+        const questionArray = generateQuestionArray(unique3DigitNumber);
+
+        console.log('Generated Question Array:', questionArray);
+
+        // Create a new user with the random crossword grid number and unique number
         const newUser = new User({
             name,
             email,
-            Teamname:teamName,
+            Teamname: teamName,
             password,
             points: 100,               // Default points
-            gridNumber: randomGrid  // Random grid number
+            gridNumber: randomGrid,    // Random grid number
+            uniqueNumber: unique3DigitNumber,
+            questionsArray: questionArray // Store the generated question array
         });
 
         await newUser.save(); // Save the new user to the database
         
         res.status(201).json({ 
             message: "Registration successful", 
-            grid: randomGrid 
+            grid: randomGrid,
+            uniqueNumber: unique3DigitNumber,
+            questionsArray: questionArray
         });
     } catch (error) {
         console.error('Error registering user:', error);
