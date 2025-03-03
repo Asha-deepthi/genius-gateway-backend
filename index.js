@@ -6,12 +6,12 @@ import User from "./User.js"; // ✅ Import User Model
 import { registerUser,verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants } from "./controller.js";
 
 const app = express();
-app.use(cors());
+// app.use(cors());
 app.use(bodyParser.json());
 
 // Or restrict to your frontend's origin (recommended for production)
 app.use(cors({
-    origin: "http://localhost:5173", // Replace with your frontend URL
+    origin: ["http://localhost:5173","https://cresence2k25.onrender.com"],// Replace with your frontend URL
     methods: ["GET", "POST"],
     credentials: true // If you are using cookies or authentication
 }));
