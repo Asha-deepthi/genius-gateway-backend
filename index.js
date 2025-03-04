@@ -30,6 +30,6 @@ app.post("/decrementMarks",decrement);
 app.get("/teams", getTeams);
 app.get("/level2participants",getLevel2Participants );
 
-
+// console.log(process.env.SAMPLE);
 const PORT=process.env.PORT||5000;
 app.listen(PORT, () => console.log(`server running on port ${PORT}`))
