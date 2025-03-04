@@ -46,6 +46,18 @@ const userSchema=new mongoose.Schema(
         questionsArray: {
             type: [[Number]],  // Array of arrays of numbers
             required: true
+        },
+        checkPoint1: {
+            type:Boolean,
+            default:false
+        },
+        checkPoint2: {
+            type:Boolean,
+            default:false
+        },
+        checkPoint3: {
+            type:Boolean,
+            default:false
         }
     
     }
