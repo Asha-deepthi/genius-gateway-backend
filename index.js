@@ -2,10 +2,12 @@ import express from "express";
 import connectdb from "./db.js"
 import cors from "cors";
 import bodyParser from 'body-parser';
+import dotenv from "dotenv"
 import User from "./User.js"; // ✅ Import User Model
 import { registerTeam,verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants } from "./controller.js";
 
 const app = express();
+dotenv.config();
 // app.use(cors());
 app.use(bodyParser.json());
 
@@ -28,4 +30,6 @@ app.post("/decrementMarks",decrement);
 app.get("/teams", getTeams);
 app.get("/level2participants",getLevel2Participants );
 
-app.listen(5000, () => console.log("server running on port 5000"))
+
+const PORT=process.env.PORT||5000;
+app.listen(PORT, () => console.log("server running on port 5000"))
