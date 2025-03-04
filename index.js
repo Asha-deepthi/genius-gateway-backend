@@ -3,7 +3,7 @@ import connectdb from "./db.js"
 import cors from "cors";
 import bodyParser from 'body-parser';
 import User from "./User.js"; // ✅ Import User Model
-import { registerUser,verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants } from "./controller.js";
+import { registerTeam,verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants } from "./controller.js";
 
 const app = express();
 // app.use(cors());
@@ -19,7 +19,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 connectdb();
-app.post("/createUser",registerUser);
+app.post("/createUser",registerTeam);
 app.post("/loginUser",verifyUser);
 app.post("/access",getUserdetails);
 app.post("/marks",updateMarks);

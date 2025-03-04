@@ -1,4 +1,5 @@
-import User from "./User.js"
+import User from "./User.js";
+
 // Utility function to shuffle an array
 const shuffleArray = (arr) => {
     const array = [...arr];
@@ -11,10 +12,7 @@ const shuffleArray = (arr) => {
 
 // Function to generate the question array from the unique number
 const generateQuestionArray = (uniqueNumber) => {
-    // Convert uniqueNumber to an array of digits
     const keyDigits = uniqueNumber.split("").map(Number);
-
-    // Validate: Ensure all digits are unique and between 1 and 9
     if (new Set(keyDigits).size !== 3) {
         throw new Error("Unique Number digits must be unique.");
     }
@@ -22,85 +20,80 @@ const generateQuestionArray = (uniqueNumber) => {
         throw new Error("Each digit must be between 1 and 9.");
     }
 
-    // All digits from 1 to 9
     const allDigits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    // Get the non-key digits
     const nonKeyDigits = allDigits.filter((d) => !keyDigits.includes(d));
-    // Shuffle non-key digits to get random order
     const shuffledNonKey = shuffleArray(nonKeyDigits);
 
-    // Group each key digit with 2 random non-key digits
     const group1 = [keyDigits[0], shuffledNonKey[0], shuffledNonKey[1]];
     const group2 = [keyDigits[1], shuffledNonKey[2], shuffledNonKey[3]];
     const group3 = [keyDigits[2], shuffledNonKey[4], shuffledNonKey[5]];
 
-    // Shuffle each group to randomize the order
-    const shuffledGroup1 = shuffleArray(group1);
-    const shuffledGroup2 = shuffleArray(group2);
-    const shuffledGroup3 = shuffleArray(group3);
-
-    // Return the combined array of all 3 groups
-    return [shuffledGroup1, shuffledGroup2, shuffledGroup3];
+    return [shuffleArray(group1), shuffleArray(group2), shuffleArray(group3)];
 };
 
-// Function to register a new user/team
-const registerUser = async (req, res) => {
+// Function to register a new team with teammates
+const registerTeam = async (req, res) => {
     try {
-        const { name, email, teamName } = req.body;
-        const password = teamName + "@geniusgateway";
-        
-        // Check if required fields are present
-        if (!name || !email || !teamName) {
-            return res.status(400).json({ message: "Name, Email, and Teamname are required" });
-        }
-        
-        // Check if email or teamname already exists
-        const existingUser = await User.findOne({ $or: [{ email }, { teamName }] });
-        if (existingUser) {
-            return res.status(409).json({ message: "Email or Teamname already taken" });
+        const { emails, teamDetails } = req.body; // Destructure from request body
+
+        // Validate that required fields are present
+        if (!emails || !teamDetails || !teamDetails.teamName) {
+            return res.status(400).json({ message: "Missing required fields" });
         }
 
-        // Generate a random number between 1 and 5 for the crossword grid
-        const randomGrid = Math.floor(Math.random() * 5) + 1;
+        // Check if the team name already exists
+        const existingTeam = await User.findOne({ Teamname: teamDetails.teamName });
+        if (existingTeam) {
+            return res.status(409).json({ message: "Team name already taken" });
+        }
 
-        // Generate a 3-digit number with unique digits from 1 to 9
+        // Check if any of the provided emails already exist in the database
+        const existingEmail = await User.findOne({ emails: { $in: emails } });
+        if (existingEmail) {
+            return res.status(409).json({ message: "One or more emails are already registered with another team" });
+        }
+
+        const password = teamDetails.teamName + "@geniusgateway";
+
+        // Generate a unique 3-digit number for the team
         const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
         let unique3DigitNumber = '';
-
         while (unique3DigitNumber.length < 3) {
             const randomIndex = Math.floor(Math.random() * digits.length);
             unique3DigitNumber += digits.splice(randomIndex, 1)[0];
         }
 
-        console.log('Generated Unique Number:', unique3DigitNumber);
-
-        // Generate the question array from the unique number
         const questionArray = generateQuestionArray(unique3DigitNumber);
 
-        console.log('Generated Question Array:', questionArray);
-
-        // Create a new user with the random crossword grid number and unique number
+        // Create a new user for the team (one account per team)
         const newUser = new User({
-            name,
-            email,
-            Teamname: teamName,
-            password,
-            points: 100,               // Default points
-            gridNumber: randomGrid,    // Random grid number
+            emails:emails,
+            Teamname: teamDetails.teamName,
+            teammates: teamDetails.teammates, // Store teammates' names and emails
+            points: 100,
+            level1: false,
+            level2: false,
+            level3: false,
+            gridNumber: Math.floor(Math.random() * 5) + 1, // Random grid number
             uniqueNumber: unique3DigitNumber,
-            questionsArray: questionArray // Store the generated question array
+            questionsArray: questionArray, // Store the generated question array
+            checkPoint1: false,
+            checkPoint2: false,
+            checkPoint3: false,
+            password:password
         });
 
-        await newUser.save(); // Save the new user to the database
-        
-        res.status(201).json({ 
-            message: "Registration successful", 
-            grid: randomGrid,
-            uniqueNumber: unique3DigitNumber,
-            questionsArray: questionArray
+        await newUser.save(); // Save the team to the database
+
+        // Return success response with team and user details
+        res.status(201).json({
+            message: "Team registration successful",
+            teamName: teamDetails.teamName,
+            teammates: teamDetails.teammates // Returning the teammates' data
         });
+
     } catch (error) {
-        console.error('Error registering user:', error);
+        console.error("Error registering team:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
@@ -111,13 +104,13 @@ const verifyUser = async (req, res) => {
         const { email, password } = req.body;
 
         // Check if user exists
-        const user = await User.findOne({ email, password });
+        const user = await User.findOne({emails: { $in: email }, password });
         if (!user) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
         // If user exists, send success response
-        res.status(200).json({ message: 'Sign-in successful', user: { name: user.name, email: user.email, teamName: user.teamName } });
+        res.status(200).json({ message: 'Sign-in successful' });
     } catch (error) {
         res.status(500).json({ message: "error occurred", error: error.message })
     }
@@ -133,7 +126,7 @@ const getUserdetails = async(req,res) => {
 
     try {
         // Find user by email
-        const user = await User.findOne({ email });
+        const user = await User.findOne({emails: { $in: email }});
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -170,7 +163,7 @@ const updateMarks = async (req, res) => {
 
     try {
         // Find user by email
-        const user = await User.findOne({ email });
+        const user = await User.findOne({emails: { $in: email }});
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -192,7 +185,7 @@ const level1completion = async (req, res) => {
     const { email } = req.body;
     try {
         // Find the user by email
-        const user = await User.findOne({ email: email });
+        const user = await User.findOne({emails: { $in: email }});
     
         if (!user) {
           return res.status(404).json({ message: "User not found" });
@@ -218,7 +211,7 @@ const decrement = async (req,res) => {
     }
 
     try {
-        let user = await User.findOne({ email });
+        let user = await User.findOne({emails: { $in: email }});
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -263,4 +256,4 @@ const getLevel2Participants = async (req, res) => {
 };
 
 
-export { registerUser, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants };
+export { registerTeam, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants };

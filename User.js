@@ -1,23 +1,22 @@
 import mongoose from "mongoose";
+
+const teammateSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true }
+});
+
 const userSchema=new mongoose.Schema(
     {
-        name:{
-            type:String,
-            required:true,
-    
-        },
-        email:{
-            type:String,
-            required:true,
-        },
+        Teamname: { type: String, required: true, unique: true }, // Unique team name
+        teammates: { type: [teammateSchema], required: true }, // Array of teammates
         password:{
             type:String,
-            default:"1234",
+            required:true
         },
-        Teamname:{
-            type:String,
-            required:true,
-        }, 
+        emails:{
+            type:[String],
+            required:true
+        },
         points: { 
             type: Number, 
             default: 100 
