@@ -146,8 +146,8 @@ const getUserdetails = async(req,res) => {
             Checkpoint1:user.checkPoint1,
             Checkpoint2:user.checkPoint2,
             Checkpoint3:user.checkPoint3,
-            Eliminated: user.eliminated,   // ✅ Now included
-            Winner: user.winner,           // ✅ Now included
+            Eliminated: user.eliminated,   
+            Winner: user.winner,           
             Questions: user.questions
         });
     } catch (error) {
@@ -170,11 +170,9 @@ const updateMarks = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
-        // If the answer is correct, add 10 marks
        
-            user.points += 50; // Ensure marks exist and increment by 10
-            await user.save(); // Save the updated document
+            user.points += 50; 
+            await user.save(); 
         
 
         res.status(200).json({ message: 'Marks updated successfully', updatedMarks: user.points });
