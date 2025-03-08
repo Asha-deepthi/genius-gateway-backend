@@ -134,7 +134,7 @@ const getUserdetails = async(req,res) => {
         // Return user details (excluding password for security)
         res.json({
             name: user.name,
-            email: user.email,
+            emails: user.emails,
             teamName: user.Teamname,
             Points: user.points,
             Level1:user.level1,
@@ -146,6 +146,9 @@ const getUserdetails = async(req,res) => {
             Checkpoint1:user.checkPoint1,
             Checkpoint2:user.checkPoint2,
             Checkpoint3:user.checkPoint3,
+            Eliminated: user.eliminated,   // ✅ Now included
+            Winner: user.winner,           // ✅ Now included
+            Questions: user.questions
         });
     } catch (error) {
         console.error('Error fetching user details:', error);
@@ -336,24 +339,29 @@ const eliminateParticipants = async (req, res) => {
     }
 
     try {
+        // Find the user by email
         const user = await User.findOne({ emails: { $in: email } });
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        if (user.level1 === false || user.level2 === false) {
-            user.eliminated = true;
-            await user.save();
-            return res.status(200).json({ message: "User eliminated", eliminated: true });
+        // Check if the user is already eliminated
+        if (user.eliminated) {
+            return res.status(400).json({ message: "User is already eliminated" });
         }
 
-        res.status(200).json({ message: "User is still in the game", eliminated: false });
+        // Mark the user as eliminated
+        user.eliminated = true;
+        await user.save();
+
+        res.status(200).json({ message: "Participant eliminated successfully", eliminated: true });
     } catch (error) {
-        console.error("Error updating elimination status:", error);
+        console.error("Error eliminating participant:", error);
         res.status(500).json({ message: "Server error" });
     }
 };
+
 
 const completeLevel3 = async (req, res) => {
     const { email } = req.body;
@@ -419,5 +427,43 @@ const incrementMarks = async (req, res) => {
     }
 };
 
+const getLevel2Leaderboard = async (req, res) => {
+    try {
+        // Find users who have completed Level 1 (moved to Level 2)
+        const leaderboard = await User.find(
+            { level1: true },  
+            {
+                Teamname: 1,
+                points: 1,
+                questions: 1,
+                checkPoint1: 1,
+                checkPoint2: 1,
+                checkPoint3: 1,
+                _id: 0
+            }
+        ).sort({ points: -1, questions: -1 });  
 
-export { registerTeam, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants , updateCheckpoint , getLevel3Participants , level2completion , eliminateParticipants , completeLevel3 , incrementMarks};
+        res.status(200).json(leaderboard);
+    } catch (error) {
+        console.error("Error fetching Level 2 leaderboard:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+const getLevel3Leaderboard = async (req, res) => {
+    try {
+        // Find users who have completed Level 2 (moved to Level 3)
+        const leaderboard = await User.find(
+            { level2: true },  
+            { Teamname: 1, _id: 0 }  
+        );
+
+        res.status(200).json(leaderboard);
+    } catch (error) {
+        console.error("Error fetching Level 3 leaderboard:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+
+export { registerTeam, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants , updateCheckpoint , getLevel3Participants , level2completion , eliminateParticipants , completeLevel3 , incrementMarks , getLevel2Leaderboard , getLevel3Leaderboard};
