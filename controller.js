@@ -291,4 +291,41 @@ const updateCheckpoint = async (req, res) => {
     }
 };
 
-export { registerTeam, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants , updateCheckpoint};
+const level2completion = async (req, res) => {
+    const { email } = req.body;
+    try {
+        // Find the user by email
+        const user = await User.findOne({emails: { $in: email }});
+    
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+    
+        // Update the level 1 completion status
+        user.level2 = true;
+        await user.save();
+    
+        res.json({ message: "Level 2 completed" });
+      } 
+      catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+      }
+};
+
+const getLevel3Participants = async (req, res) => {
+    try {
+        // Find users who completed Level 1 and proceeded to Level 2
+        const participants = await User.find(
+            { level2: true }, // Checking both level statuses
+            { name: 1, email: 1, Teamname: 1, points: 1, _id: 0 } // Fields to return
+        ).sort({ points: -1 }); // Sort by points in descending order
+
+        res.status(200).json(participants);
+    } catch (error) {
+        console.error("Error fetching Level 3 participants:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+export { registerTeam, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants , updateCheckpoint , getLevel3Participants , level2completion };

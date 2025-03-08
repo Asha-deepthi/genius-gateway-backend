@@ -25,10 +25,12 @@ app.post("/createUser",registerTeam);
 app.post("/loginUser",verifyUser);
 app.post("/access",getUserdetails);
 app.post("/marks",updateMarks);
-app.post("/completion",level1completion);
+app.post("/completion1",level1completion);
+app.post("/completion2",level1completion);
 app.post("/decrementMarks",decrement);
 app.get("/teams", getTeams);
 app.get("/level2participants",getLevel2Participants );
+app.get("/level3participants",getLevel2Participants );
 app.post("/checkpoints",updateCheckpoint );
 
 // console.log(process.env.SAMPLE);
