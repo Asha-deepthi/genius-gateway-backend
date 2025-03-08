@@ -328,4 +328,96 @@ const getLevel3Participants = async (req, res) => {
     }
 };
 
-export { registerTeam, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants , updateCheckpoint , getLevel3Participants , level2completion };
+const eliminateParticipants = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+    }
+
+    try {
+        const user = await User.findOne({ emails: { $in: email } });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (user.level1 === false || user.level2 === false) {
+            user.eliminated = true;
+            await user.save();
+            return res.status(200).json({ message: "User eliminated", eliminated: true });
+        }
+
+        res.status(200).json({ message: "User is still in the game", eliminated: false });
+    } catch (error) {
+        console.error("Error updating elimination status:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+const completeLevel3 = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ winner: false });
+    }
+
+    try {
+        // Check if a winner already exists
+        const existingWinner = await User.findOne({ winner: true });
+
+        // Find the user attempting Level 3 completion
+        const user = await User.findOne({ emails: { $in: email } });
+
+        if (!user) {
+            return res.status(404).json({ winner: false });
+        }
+
+        // Mark Level 3 as completed
+        user.level3 = true;
+        await user.save();
+
+        if (existingWinner) {
+            // If a winner already exists, don't make another winner
+            return res.status(200).json({ winner: false });
+        } else {
+            // No winner exists, make this user the winner
+            user.winner = true;
+            await user.save();
+            return res.status(200).json({ winner: true });
+        }
+    } catch (error) {
+        console.error("Error updating Level 3 status:", error);
+        res.status(500).json({ winner: false });
+    }
+};
+
+const incrementMarks = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+    }
+
+    try {
+        // Find user by email
+        const user = await User.findOne({ emails: { $in: email } });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Increment points by 50 and increase the question count
+        user.points += 50;
+        user.questions += 1;
+        await user.save();
+
+        res.status(200).json({ message: "Marks updated", points: user.points, questions: user.questions });
+    } catch (error) {
+        console.error("Error updating marks:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+
+export { registerTeam, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants , updateCheckpoint , getLevel3Participants , level2completion , eliminateParticipants , completeLevel3 , incrementMarks};
