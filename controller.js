@@ -255,5 +255,40 @@ const getLevel2Participants = async (req, res) => {
     }
 };
 
+const updateCheckpoint = async (req, res) => {
+    const { email, checkpoint } = req.body;
 
-export { registerTeam, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants };
+    if (!email || !checkpoint || ![1, 2, 3].includes(checkpoint)) {
+        return res.status(400).json({ message: "Invalid request data" });
+    }
+
+    try {
+        const user = await User.findOne({ emails: { $in: email } });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Mark the corresponding checkpoint as true
+        if (checkpoint === 1) {
+            user.checkPoint1 = true;
+        } else if (checkpoint === 2) {
+            user.checkPoint2 = true;
+        } else if (checkpoint === 3) {
+            user.checkPoint3 = true;
+        }
+
+        await user.save();
+
+        res.json({ message: `Checkpoint ${checkpoint} updated successfully`, 
+                   checkPoint1: user.checkPoint1,
+                   checkPoint2: user.checkPoint2,
+                   checkPoint3: user.checkPoint3
+                 });
+    } catch (error) {
+        console.error("Error updating checkpoint:", error);
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+export { registerTeam, verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants , updateCheckpoint};

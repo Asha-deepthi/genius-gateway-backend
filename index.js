@@ -4,7 +4,7 @@ import cors from "cors";
 import bodyParser from 'body-parser';
 import dotenv from "dotenv"
 import User from "./User.js"; // ✅ Import User Model
-import { registerTeam,verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants } from "./controller.js";
+import { registerTeam,verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants , updateCheckpoint } from "./controller.js";
 
 const app = express();
 dotenv.config();
@@ -29,6 +29,7 @@ app.post("/completion",level1completion);
 app.post("/decrementMarks",decrement);
 app.get("/teams", getTeams);
 app.get("/level2participants",getLevel2Participants );
+app.post("/checkpoints",updateCheckpoint );
 
 // console.log(process.env.SAMPLE);
 const PORT=process.env.PORT||5000;
