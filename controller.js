@@ -146,9 +146,9 @@ const getUserdetails = async(req,res) => {
             Checkpoint1:user.checkPoint1,
             Checkpoint2:user.checkPoint2,
             Checkpoint3:user.checkPoint3,
-            Eliminated: user.eliminated,   
-            Winner: user.winner,           
-            Questions: user.questions
+            eliminated: user.eliminated,   
+            winner: user.winner,           
+            questions: user.questions
         });
     } catch (error) {
         console.error('Error fetching user details:', error);
