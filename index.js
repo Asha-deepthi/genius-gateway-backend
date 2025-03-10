@@ -4,7 +4,7 @@ import cors from "cors";
 import bodyParser from 'body-parser';
 import dotenv from "dotenv"
 import User from "./User.js"; // ✅ Import User Model
-import { registerTeam,verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants , updateCheckpoint , getLevel3Participants , level2completion , eliminateParticipants , completeLevel3 , incrementMarks , getLevel3Leaderboard} from "./controller.js";
+import { registerTeam,verifyUser , getUserdetails , updateMarks , level1completion , decrement , getTeams , getLevel2Participants , updateCheckpoint , getLevel3Participants , level2completion , eliminateParticipants , completeLevel3 , incrementMarks , getLevel3Leaderboard,getLevel2Leaderboard} from "./controller.js";
 
 const app = express();
 dotenv.config();
